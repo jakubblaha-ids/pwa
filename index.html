@@ -1,24 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
 
     <!-- Manifest -->
-    <link rel="manifest" href="manifest.json">
-</head>
-<body>
-    <h1>Hello World</h1>
+    <link rel="manifest" href="manifest.json" />
+    <script src="utils.js"></script>
+  </head>
+  <body>
+    <h1>Does this browser support PWAs?</h1>
+    <h2 id="support-container"></h2>
 
-    <script>
-        // Check if browser supports service worker
-        if ('serviceWorker' in navigator) {
+    <h1>Register service worker?</h1>
+    <button onclick="registerSw()">Register</button>
 
-            // Register service worker
-            navigator.serviceWorker.register('/service-worker.js')
-        }
-    </script>
-</body>
+    <h1>Unregister service worker?</h1>
+    <button onclick="unregisterSw()">Unregister</button>
+
+    <h2>Send push notification?</h2>
+    <button onclick="sendPush()">Send push</button>
+  </body>
+
+  <script>
+    function registerSw() {
+      if (supportsPWA) {
+        navigator.serviceWorker
+          .register("service-worker.js")
+          .then(function (registration) {
+            alert("Service worker registration successful.");
+          })
+          .catch(function (err) {
+            alert("Service worker registration failed: ", err);
+          });
+      } else {
+        alert("Service workers are not supported.");
+      }
+    }
+
+    function unregisterSw() {
+      if (supportsPWA) {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then((registrations) => {
+            registrations.forEach((registration) => {
+              registration.unregister();
+            });
+          })
+          .catch(function (err) {
+            alert("Service worker unregister failed: ", err);
+          });
+      } else {
+        alert("Service workers are not supported.");
+      }
+    }
+
+    function sendPush() {
+      requestPushPermission();
+
+      if (supportsPWA) {
+        navigator.serviceWorker.getRegistration().then((registration) => {
+          registration.showNotification("Hello world!");
+        });
+      } else {
+        alert("Service workers are not supported.");
+      }
+    }
+
+    const supportsPWA = "serviceWorker" in navigator;
+
+    if (supportsPWA) {
+      document.getElementById("support-container").innerHTML = "Yes";
+    } else {
+      document.getElementById("support-container").innerHTML = "No";
+    }
+  </script>
 </html>
